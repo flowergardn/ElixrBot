@@ -44,8 +44,6 @@ const bot = async (req: NextApiRequest, res: NextApiResponse) => {
   if (type === InteractionType.ApplicationCommand) {
     const interaction = req.body;
 
-    console.log(interaction);
-
     try {
       const command = await import(`../bot/commands/${interaction.data.name}`);
       await command.execute({
@@ -54,8 +52,7 @@ const bot = async (req: NextApiRequest, res: NextApiResponse) => {
         req,
       });
     } catch (err: any) {
-      console.log(err.message);
-      console.log(`command does not exist`);
+      throw err;
     }
   }
 };

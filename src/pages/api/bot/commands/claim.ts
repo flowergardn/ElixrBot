@@ -1,7 +1,7 @@
 import { CommandOptions } from "~/pages/api/bot/interfaces/Interaction";
 import { InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 import { prisma } from "~/server/db";
-import { EmbedBuilder, bold, inlineCode } from "@discordjs/builders";
+import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import Colors from "~/constants/Colors";
 import { Rewards, Users } from "@prisma/client";
 import axios from "axios";
@@ -73,6 +73,17 @@ export const execute = async (opt: CommandOptions) => {
     try {
       await axios.put(roleEndpoint, undefined, axiosConfig);
     } catch (err) {
+      const errorEmbed = new EmbedBuilder().setColor(Colors.red);
+      errorEmbed.setDescription(
+        `## Uh oh!\nI don't seem to have permission to give roles here :(`
+      );
+      response.json({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          embeds: [errorEmbed.toJSON()],
+          flags: MessageFlags.Ephemeral,
+        },
+      });
       throw err;
     }
 
