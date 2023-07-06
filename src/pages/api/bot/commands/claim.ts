@@ -5,6 +5,7 @@ import { EmbedBuilder, inlineCode } from "@discordjs/builders";
 import Colors from "~/constants/Colors";
 import { Rewards, Users } from "@prisma/client";
 import axios from "axios";
+import * as Sentry from "@sentry/browser";
 
 const LastFm = require("lastfm-node-client");
 
@@ -21,6 +22,12 @@ export const execute = async (opt: CommandOptions) => {
     entityType: "artist" | "album";
   }) {
     const { rewardInfo, userInfo, fmAPI, entityType } = opt;
+
+    Sentry.addBreadcrumb({
+      category: "claim",
+      message: `Checking ${entityType} rewards. Reward ID: ${rewardInfo.id}`,
+      level: "info",
+    });
 
     const getInfoOptions: {
       artist?: string;
@@ -50,8 +57,6 @@ export const execute = async (opt: CommandOptions) => {
       }
     }
 
-    console.log(`${parseInt(streams)} on ${rewardInfo.name}`);
-
     if (parseInt(streams) < rewardInfo.amount) return;
 
     let reason = `Received a reward for reaching ${rewardInfo.amount} streams `;
@@ -72,6 +77,11 @@ export const execute = async (opt: CommandOptions) => {
 
     try {
       await axios.put(roleEndpoint, undefined, axiosConfig);
+      Sentry.addBreadcrumb({
+        category: "claim",
+        message: `Gave role for reward. Reward ID: ${rewardInfo.id}`,
+        level: "info",
+      });
     } catch (err) {
       const errorEmbed = new EmbedBuilder().setColor(Colors.red);
       errorEmbed.setDescription(

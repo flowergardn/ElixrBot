@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { InteractionType } from "discord-api-types/v10";
+import * as Sentry from "@sentry/browser";
 
 import { sign } from "tweetnacl";
 
@@ -43,6 +44,12 @@ const bot = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (type === InteractionType.ApplicationCommand) {
     const interaction = req.body;
+
+    Sentry.addBreadcrumb({
+      category: "command-handler",
+      message: `Executing command ${interaction.data.name}`,
+      level: "info",
+    });
 
     try {
       const command = await import(`../bot/commands/${interaction.data.name}`);
