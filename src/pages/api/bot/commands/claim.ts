@@ -70,7 +70,11 @@ export const execute = async (opt: CommandOptions) => {
 
     const roleEndpoint = `https://discord.com/api/guilds/${rewardInfo.serverId}/members/${userInfo.discordId}/roles/${rewardInfo.roleId}`;
 
-    await axios.put(roleEndpoint, undefined, axiosConfig);
+    try {
+      await axios.put(roleEndpoint, undefined, axiosConfig);
+    } catch (err) {
+      throw err;
+    }
 
     const claimedRewards = JSON.parse(userInfo.claimedRewards);
     claimedRewards.push(rewardInfo.id);
