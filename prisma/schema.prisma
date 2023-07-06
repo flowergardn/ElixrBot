@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["jsonProtocol"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Servers {
+  id       String    @id
+  joinedAt DateTime  @default(now())
+  Rewards  Rewards[]
+}
+
+model RewardSession {
+  id        String   @id @default(cuid())
+  serverId String
+}
+
+// Server specific
+model Rewards {
+  // Reward ID
+  id        String   @id @default(cuid())
+  // What does this user have to do? (Artist, Song, Album)
+  type    String
+  artist String
+  // Name of the album, song or aritst
+  name String
+  // Amount of streams
+  amount Int
+  // Role to grant
+  roleId String
+  // Server relational stuff
+  Servers   Servers? @relation(fields: [serverId], references: [id])
+  serverId String?
+}
+
+// Not server specific
+model Users {
+  discordId String   @id
+  fmName    String
+  fmToken String
+  // JSON Encoded array of reward IDs to keep track of them.
+  claimedRewards String @default("[]")
+  createdAt DateTime @default(now())
+}
+
+model Sessions {
+  id        String @id @default(cuid())
+  discordId String
+}
